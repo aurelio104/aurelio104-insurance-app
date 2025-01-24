@@ -1,0 +1,248 @@
+/* ========== Contenedor Principal ========== */
+/* Contenedor principal con scroll */
+/* ========== Contenedor Principal ========== */
+/* Contenedor principal con scroll (Para todas las páginas excepto login, registro y recuperación de contraseña) */
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Alinear contenido desde arriba */
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Habilitar desplazamiento vertical */
+    overflow-x: hidden; /* Evitar desplazamiento horizontal */
+    margin: 0 auto;
+    background-color: #f5f5f5;
+}
+
+/* Contenedor para login, registro y recuperación de contraseña */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra verticalmente */
+    align-items: center; /* Centra horizontalmente */
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+}
+
+
+/* ========== Barra de Navegación ========== */
+.app-bar {
+    background-color: #4a4a4a; /* Gris oscuro */
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.app-bar-title {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* ========== Contenedores Uniformes ========== */
+.uniform-container, .promotions-container {
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 90%;
+    max-width: 400px;
+    background-color: #ffffff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+.uniform-container h2, .promotions-container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333333; /* Gris oscuro para texto */
+}
+
+/* ========== Tarjetas ========== */
+.card {
+    border-radius: 16px;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+    background-color: #ffffff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    margin: 20px auto;
+}
+
+/* ========== Grid ========== */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    width: 100%;
+    justify-items: center;
+}
+
+/* ========== Sección de Seguros ========== */
+.insurance-container, .promotions-container {
+    border-radius: 16px;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    background-color: #ffffff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    margin: 20px auto;
+}
+
+.insurance-title, .promotions-title {
+    text-align: center;
+    color: #333333;
+    font-size: 24px;
+}
+
+.insurance-options, .promotions-options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ========== Botón Cotiza Aquí ========== */
+.quote-button {
+    background-color: #ffffff; /* Fondo blanco */
+    color: #4a4a4a !important; /* Texto gris oscuro con prioridad */
+    font-weight: bold !important; /* Texto en negrita con prioridad */
+    text-transform: uppercase;
+    font-size: 16px;
+    width: 100%;
+    max-width: 350px;
+    margin-top: 20px;
+    border-radius: 8px;
+    padding: 12px 20px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2); /* Efecto de sombra para 3D */
+    transition: all 0.3s ease-in-out;
+}
+
+.quote-button:hover {
+    background-color: #f0f0f0; /* Gris claro */
+    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.quote-button:active {
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    transform: translateY(2px);
+}
+
+/* ========== Campos de Entrada ========== */
+.input-field {
+    width: 100%;
+    max-width: 350px;
+}
+
+.input-field input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.input-field input:focus {
+    border-color: #4a4a4a;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== Enlaces ========== */
+.link {
+    color: #4a4a4a;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    text-align: center;
+    transition: color 0.3s ease-in-out;
+}
+
+.link:hover {
+    color: #6c6c6c;
+}
+
+/* ========== Responsividad ========== */
+@media (max-width: 768px) {
+    .app-bar-title {
+        font-size: 16px;
+    }
+    .uniform-container, .promotions-container {
+        max-width: 100%;
+        padding: 15px;
+    }
+    .promo-title {
+        font-size: 1rem;
+    }
+    .promo-description {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .app-bar-title {
+        font-size: 14px;
+    }
+    .uniform-container, .promotions-container {
+        padding: 10px;
+    }
+    .promo-image {
+        max-height: 100px;
+    }
+}
+
+@media (max-width: 425px) {
+    .app-bar-title {
+        font-size: 12px;
+    }
+    .uniform-container, .promotions-container {
+        padding: 8px;
+    }
+    .promo-title {
+        font-size: 0.9rem;
+    }
+    .promo-description {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .app-bar-title {
+        font-size: 12px;
+    }
+    .uniform-container, .promotions-container {
+        padding: 5px;
+    }
+    .promo-image {
+        max-height: 80px;
+    }
+}
