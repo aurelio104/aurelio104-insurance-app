@@ -3,6 +3,8 @@ import axios from "axios";
 // Base URL del backend
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
+console.log("API URL en frontend:", BASE_URL);
+
 // Crear una instancia de Axios
 const api = axios.create({
   baseURL: `${BASE_URL}/api`, // Asegúrate de que `/api` se añade aquí.
