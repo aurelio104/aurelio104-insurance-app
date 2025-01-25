@@ -49,13 +49,16 @@ const PORT = process.env.PORT || 5000;
 // Middleware de seguridad
 app.use(helmet({ contentSecurityPolicy: false }));
 
-// Configuración de CORS dinámico
+// Configuración de CORS dinámica actualizada
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:3000",
   "http://localhost:5173",
   "https://insurance-app-xi.vercel.app",
+  "https://insurance-app-xi.onrender.com", // Agregando la posible URL de Render (si se usa)
+  "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app", // Nueva URL de Koyeb
 ];
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -66,9 +69,17 @@ app.use(
         callback(new Error("No permitido por CORS"));
       }
     },
-    credentials: true,
+    credentials: true, // Permitir cookies y encabezados de autenticación
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos HTTP permitidos
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ], // Encabezados permitidos
   })
 );
+
 
 // Middleware para parsear JSON y datos codificados en URL
 app.use(express.json());
