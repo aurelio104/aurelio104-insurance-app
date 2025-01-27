@@ -1,18 +1,18 @@
 import axios from "axios";
 
-// Definir la URL base del backend
-const BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
-console.log("API URL en frontend (process.env):", process.env.REACT_APP_API_URL);
-console.log("API URL en frontend (final):", BASE_URL);
+// Base URL del backend
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+console.log("API URL en frontend:", process.env.REACT_APP_API_URL);
 
-// Crear una instancia de Axios con tiempo de espera predeterminado
+console.log("API URL en frontend:", BASE_URL);
+
+// Crear una instancia de Axios
 const api = axios.create({
-  baseURL: `${BASE_URL}/api`, // Aquí se asegura que use "/api"
+  baseURL: `${BASE_URL}/api`, // Asegúrate de que `/api` se añade aquí.
   headers: {
     "Content-Type": "application/json",
   },
 });
-
 
 // Interceptor para incluir el token JWT en cada solicitud
 api.interceptors.request.use(
@@ -21,7 +21,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log(`[Request] ${config.method.toUpperCase()} - ${config.url}`);
     return config;
   },
   (error) => {
@@ -30,13 +29,9 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para manejar respuestas exitosas y errores
+// Interceptor para manejar errores de respuesta
 api.interceptors.response.use(
-  (response) => {
-    console.log(`[Response] ${response.status} - ${response.config.url}`);
-    console.log("[Response Data]:", response.data);
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
@@ -55,9 +50,8 @@ api.interceptors.response.use(
           throw new Error("No hay token de renovación disponible.");
         }
 
-        console.log("[Token Refresh] Intentando renovar token...");
         // Solicitar un nuevo token usando el token de renovación
-        const { data } = await api.post("/auth/refresh-token", {
+        const { data } = await axios.post(`${BASE_URL}/api/auth/refresh-token`, {
           refreshToken,
         });
 
@@ -92,7 +86,7 @@ api.interceptors.response.use(
 
     // Manejo genérico de errores de red
     if (!error.response) {
-      console.error("[Network Error]: No response received", error.message);
+      console.error("[Network Error]:", error.message);
       window.alert("Hubo un problema de red. Por favor, revisa tu conexión.");
     }
 
