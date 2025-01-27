@@ -18,6 +18,11 @@ const authValidations = {
   ],
 };
 
+// **Ruta de prueba para verificar la conectividad**
+router.get("/", (req, res) => {
+  res.status(200).json({ message: "Ruta de autenticación funcionando correctamente" });
+});
+
 // **Ruta para registrar un usuario**
 router.post(
   "/register",
