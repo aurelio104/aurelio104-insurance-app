@@ -7,12 +7,12 @@ console.log("API URL en frontend (final):", BASE_URL);
 
 // Crear una instancia de Axios con tiempo de espera predeterminado
 const api = axios.create({
-  baseURL: BASE_URL, // Asegúrate de que la base URL está correctamente configurada
+  baseURL: `${BASE_URL}/api`, // Aquí se asegura que use "/api"
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, // 10 segundos de tiempo de espera
 });
+
 
 // Interceptor para incluir el token JWT en cada solicitud
 api.interceptors.request.use(

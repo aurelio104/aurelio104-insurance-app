@@ -49,7 +49,6 @@ router.post(
   async (req, res, next) => {
     console.log("Intentando iniciar sesión con:", req.body);
 
-    // Validación de campos
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.error("Errores de validación al iniciar sesión:", errors.array());
@@ -58,16 +57,15 @@ router.post(
 
     try {
       const { email } = req.body;
-      const User = require("../models/User"); // Importa el modelo User
+      const User = require("../models/User");
 
-      // Verificar si el usuario existe
       const user = await User.findOne({ email });
       if (!user) {
-        console.error("[Login] Error: Usuario no encontrado en la base de datos.");
+        console.error("[Login] Usuario no encontrado");
         return res.status(404).json({ error: "Usuario no registrado" });
       }
 
-      next(); // Continuar al controlador
+      next();
     } catch (error) {
       console.error("[Login] Error inesperado:", error.message);
       res.status(500).json({ error: "Error interno del servidor" });

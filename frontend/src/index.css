@@ -37,7 +37,6 @@ body {
   /* place-items: center; */
   min-width: 320px;
   min-height: 100vh;
-  background: url('./fondo.jpg') no-repeat center center fixed; /* Fondo específico para login */
   background-size: cover; /* Asegurar que el fondo cubra toda la pantalla */
 }
 
