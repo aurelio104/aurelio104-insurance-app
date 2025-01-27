@@ -1,14 +1,13 @@
 import axios from "axios";
 
-// Base URL del backend
+// Definir la URL base del backend
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-console.log("API URL en frontend:", process.env.REACT_APP_API_URL);
-
-console.log("API URL en frontend:", BASE_URL);
+console.log("API URL en frontend (process.env):", process.env.REACT_APP_API_URL);
+console.log("API URL en frontend (final):", BASE_URL);
 
 // Crear una instancia de Axios
 const api = axios.create({
-  baseURL: `${BASE_URL}/api`, // Asegúrate de que `/api` se añade aquí.
+  baseURL: `${BASE_URL}`, // Asegúrate de que la base URL está correctamente configurada
   headers: {
     "Content-Type": "application/json",
   },
@@ -21,6 +20,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log(`[Request] ${config.method.toUpperCase()} - ${config.url}`);
     return config;
   },
   (error) => {
@@ -31,7 +31,10 @@ api.interceptors.request.use(
 
 // Interceptor para manejar errores de respuesta
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[Response] ${response.status} - ${response.config.url}`);
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -50,8 +53,9 @@ api.interceptors.response.use(
           throw new Error("No hay token de renovación disponible.");
         }
 
+        console.log("[Token Refresh] Intentando renovar token...");
         // Solicitar un nuevo token usando el token de renovación
-        const { data } = await axios.post(`${BASE_URL}/api/auth/refresh-token`, {
+        const { data } = await axios.post(`${BASE_URL}/auth/refresh-token`, {
           refreshToken,
         });
 
