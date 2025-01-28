@@ -140,4 +140,23 @@ router.get("/history", authMiddleware, async (req, res) => {
   }
 });
 
+// **Obtener datos del usuario autenticado**
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "No autorizado" });
+    }
+
+    res.json({
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+    });
+  } catch (error) {
+    console.error("❌ [Perfil] Error obteniendo perfil del usuario:", error.message);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+
 module.exports = router;
