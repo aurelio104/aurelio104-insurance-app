@@ -2,7 +2,6 @@ const express = require("express");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const { registerUser, loginUser } = require("../controllers/authController");
-const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
@@ -24,15 +23,16 @@ router.post(
   "/register",
   authValidations.register,
   async (req, res, next) => {
-    console.log("[Registro] Intentando registrar usuario:", req.body);
+    console.log("Intentando registrar usuario:", req.body);
 
+    // Validación de campos
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error("[Registro] Errores de validación:", errors.array());
+      console.error("Errores de validación al registrar:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
-    next();
+    next(); // Continuar al controlador
   },
   registerUser
 );
@@ -42,70 +42,60 @@ router.post(
   "/login",
   authValidations.login,
   async (req, res, next) => {
-    console.log("[Login] Intentando iniciar sesión con:", req.body);
+    console.log("Intentando iniciar sesión con:", req.body);
 
+    // Validación de campos
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error("[Login] Errores de validación:", errors.array());
+      console.error("Errores de validación al iniciar sesión:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     try {
       const { email } = req.body;
-      const User = require("../models/User");
+      const User = require("../models/User"); // Importa el modelo User
 
+      // Verificar si el usuario existe
       const user = await User.findOne({ email });
       if (!user) {
-        console.error("[Login] Error: Usuario no encontrado.");
+        console.error("[Login] Error: Usuario no encontrado en la base de datos.");
         return res.status(404).json({ error: "Usuario no registrado" });
       }
 
-      next();
+      next(); // Continuar al controlador
     } catch (error) {
       console.error("[Login] Error inesperado:", error.message);
-      return res.status(500).json({ error: "Error interno del servidor" });
+      res.status(500).json({ error: "Error interno del servidor" });
     }
   },
   loginUser
 );
-
-// **Ruta para obtener datos del usuario autenticado**
-router.get("/me", protect, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "No autorizado" });
-    }
-
-    res.json({
-      id: req.user.id,
-      name: req.user.name,
-      email: req.user.email,
-    });
-  } catch (error) {
-    console.error("[Perfil] Error obteniendo perfil del usuario:", error.message);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
 
 // **Ruta para renovar el token JWT usando un refresh token**
 router.post("/refresh-token", async (req, res) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
-    console.error("[Token Refresh] Error: No se proporcionó un token.");
+    console.error("Error: No se proporcionó un token de renovación.");
     return res.status(400).json({ error: "No se proporcionó un token de renovación" });
   }
 
   try {
+    // Verificar el token de renovación
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-    const newToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    // Generar un nuevo token de acceso
+    const newToken = jwt.sign(
+      { id: decoded.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    console.log("[Token Refresh] Token renovado exitosamente para:", decoded.id);
+    console.log("Token renovado exitosamente para el usuario:", decoded.id);
 
     res.json({ token: newToken });
   } catch (err) {
-    console.error("[Token Refresh] Error al renovar el token:", err.message);
+    console.error("Error al renovar el token:", err.message);
     res.status(401).json({ error: "Token de renovación inválido o expirado" });
   }
 });
