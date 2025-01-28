@@ -6,6 +6,11 @@ const User = require("../models/User");
 const { check, validationResult } = require("express-validator");
 const sendEmail = require("../utils/sendEmail");
 
+// Helper para manejar errores
+const handleError = (res, error, statusCode = 500) => {
+  console.error("Error:", error.message);
+  res.status(statusCode).json({ error: "Server error", details: error.message });
+};
 
 // **Solicitar restablecimiento de contraseña**
 router.post(
@@ -14,20 +19,24 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.warn("[Forgot Password] Validation failed:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { email } = req.body;
 
     try {
+      console.log(`[Forgot Password] Searching for user with email: ${email}`);
       const user = await User.findOne({ email });
 
       if (!user) {
+        console.warn(`[Forgot Password] User not found: ${email}`);
         return res.status(404).json({ message: "User not found" });
       }
 
-      const resetToken = crypto.randomBytes(20).toString("hex");
-      user.resetPasswordToken = resetToken;
+      // Generar un token seguro para restablecer la contraseña
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
       user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
       await user.save();
 
@@ -40,10 +49,11 @@ router.post(
         text: message,
       });
 
+      console.log(`[Forgot Password] Reset email sent to: ${user.email}`);
+
       res.json({ message: "Password reset email sent" });
     } catch (error) {
-      console.error("Error requesting password reset:", error.message);
-      res.status(500).json({ error: "Server error", details: error.message });
+      handleError(res, error);
     }
   }
 );
@@ -58,21 +68,27 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.warn("[Reset Password] Validation failed:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { token, password } = req.body;
 
     try {
+      console.log("[Reset Password] Verifying reset token...");
+      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
       const user = await User.findOne({
-        resetPasswordToken: token,
+        resetPasswordToken: hashedToken,
         resetPasswordExpires: { $gt: Date.now() },
       });
 
       if (!user) {
+        console.warn("[Reset Password] Invalid or expired token");
         return res.status(400).json({ message: "Invalid or expired token" });
       }
 
+      console.log(`[Reset Password] Resetting password for user: ${user.email}`);
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
 
@@ -83,8 +99,7 @@ router.post(
 
       res.json({ message: "Password reset successfully" });
     } catch (error) {
-      console.error("Error resetting password:", error.message);
-      res.status(500).json({ error: "Server error", details: error.message });
+      handleError(res, error);
     }
   }
 );

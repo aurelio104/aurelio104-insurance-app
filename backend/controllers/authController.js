@@ -22,8 +22,12 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "El correo ya está registrado." });
     }
 
+    // Hashear la contraseña antes de guardar el usuario
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Crear un nuevo usuario
-    const newUser = new User({ name, email, password }); // Middleware de pre('save') manejará el hasheo
+    const newUser = new User({ name, email, password: hashedPassword });
     const savedUser = await newUser.save();
 
     console.log("[Registro] Usuario creado exitosamente:", {
@@ -68,24 +72,24 @@ const loginUser = async (req, res) => {
 
     // Comparar contraseñas
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("[Login] Resultado de comparación de contraseña:", {
-      inputPassword: password,
-      storedHash: user.password,
-      isMatch,
-    });
 
     if (!isMatch) {
       console.error("[Login] Error: Contraseña incorrecta.");
       return res.status(401).json({ error: "Correo o contraseña incorrectos" });
     }
 
-    // Generar token JWT
+    // Generar token JWT con expiración de 1 hora
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    // Generar token de actualización con expiración de 7 días
+    const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+
     console.log("[Login] Token JWT generado exitosamente para el usuario:", user._id);
 
     res.status(200).json({
       message: "Inicio de sesión exitoso",
       token,
+      refreshToken,
       user: {
         id: user._id,
         name: user.name,

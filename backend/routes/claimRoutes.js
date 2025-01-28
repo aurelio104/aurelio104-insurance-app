@@ -1,54 +1,74 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
-const Claim = require("../models/Claim"); // Modelo para manejar los reportes de siniestros
+const Claim = require("../models/Claim");
+const Policy = require("../models/Policy"); // Para verificar la existencia de la póliza
 
-// Ruta para reportar siniestros
+// **Helper para manejar errores**
+const handleError = (res, error, statusCode = 500) => {
+  console.error("Error:", error.message);
+  res.status(statusCode).json({ error: "Server error", details: error.message });
+};
+
+// **Ruta para reportar siniestros**
 router.post("/report", authMiddleware, async (req, res) => {
   const { policyId, description, date } = req.body;
 
-  // Validar los datos recibidos
+  // Validación de los datos recibidos
   if (!policyId || !description || !date) {
     return res.status(400).json({ error: "Todos los campos son obligatorios." });
   }
 
   try {
-    // Crear un nuevo reporte en la base de datos
+    console.log(`[Claims] Verificando existencia de póliza: ${policyId}`);
+    
+    const policyExists = await Policy.findOne({ _id: policyId, user: req.user.id });
+    if (!policyExists) {
+      console.warn(`[Claims] Póliza no encontrada para el usuario: ${req.user.id}`);
+      return res.status(404).json({ error: "No se encontró la póliza asociada." });
+    }
+
+    console.log(`[Claims] Creando reporte de siniestro para el usuario: ${req.user.id}`);
+
     const newClaim = await Claim.create({
-      userId: req.user.id, // Nota: Asegúrate de que `userId` sea correcto en el modelo
-      policyId, // Nota: Asegúrate de que `policyId` sea correcto en el modelo
+      userId: req.user.id,
+      policyId,
       description,
-      date,
+      date: new Date(date),
+      status: "Pendiente", // Estado inicial del reporte
     });
 
     res.status(201).json({ message: "Reporte creado exitosamente.", claim: newClaim });
   } catch (error) {
-    console.error("Error al guardar el reporte:", error);
-    res.status(500).json({ error: "Error al guardar el reporte. Intente nuevamente." });
+    handleError(res, error);
   }
 });
 
-// Ruta para obtener los reportes del usuario autenticado
+// **Ruta para obtener los reportes del usuario autenticado**
 router.get("/user-reports", authMiddleware, async (req, res) => {
   try {
-    // Buscar los reportes del usuario autenticado
+    console.log(`[Claims] Obteniendo reportes para el usuario: ${req.user.id}`);
+
     const reports = await Claim.find({ userId: req.user.id }).populate("policyId");
 
-    // Transformar los datos para enviarlos al cliente
+    if (!reports.length) {
+      console.warn(`[Claims] No se encontraron reportes para el usuario: ${req.user.id}`);
+      return res.status(200).json({ message: "No se encontraron reportes", data: [] });
+    }
+
+    // Transformar los datos para enviarlos al frontend
     const transformedReports = reports.map((report) => ({
       id: report._id,
       policyId: report.policyId ? report.policyId._id : "No asociado",
       policyType: report.policyId ? report.policyId.type : "Desconocido",
       description: report.description || "Sin descripción",
-      date: report.date
-        ? report.date.toISOString() // Enviar fecha en formato ISO para el frontend
-        : null,
+      date: report.date ? report.date.toISOString() : null,
+      status: report.status || "Pendiente",
     }));
 
-    res.status(200).json({ data: transformedReports });
-  } catch (err) {
-    console.error("Error al obtener reportes del usuario:", err);
-    res.status(500).json({ error: "Error al obtener los reportes del usuario." });
+    res.status(200).json({ message: "Reportes obtenidos exitosamente.", data: transformedReports });
+  } catch (error) {
+    handleError(res, error);
   }
 });
 

@@ -5,29 +5,29 @@ const router = express.Router();
 const Policy = require("../models/Policy");
 const authMiddleware = require("../middlewares/authMiddleware");
 
-// Helper function to handle errors
+// **Helper para manejar errores**
 const handleError = (res, error, statusCode = 500) => {
-  console.error(error.message);
+  console.error("❌ Error:", error.message);
   res.status(statusCode).json({
     error: "Server error",
     details: error.message,
   });
 };
 
-// Helper function to format policies
+// **Helper para formatear pólizas**
 const formatPolicy = (policy) => ({
   id: policy._id,
   user: policy.user,
   type: policy.type,
-  coverage: policy.coverage, // Devuelve coverage como número
-  premium: policy.premium, // Devuelve premium como número
-  remainingBalance: policy.remainingBalance, // Devuelve remainingBalance como número
+  coverage: policy.coverage,
+  premium: policy.premium,
+  remainingBalance: policy.remainingBalance || 0,
   startDate: policy.startDate.toISOString().split("T")[0],
   endDate: policy.endDate.toISOString().split("T")[0],
   status: policy.status,
 });
 
-// **Endpoint para adquirir una póliza**
+// **Adquirir una póliza**
 router.post(
   "/acquire",
   authMiddleware,
@@ -56,8 +56,8 @@ router.post(
       const newPolicy = new Policy({
         user: req.user.id,
         type,
-        coverage: parseFloat(coverage), // Asegurar que sea un número
-        premium: parseFloat(premium), // Asegurar que sea un número
+        coverage: parseFloat(coverage),
+        premium: parseFloat(premium),
         startDate,
         endDate,
         status: "active",
@@ -67,15 +67,10 @@ router.post(
 
       res.status(201).json({
         message: "Policy acquired successfully",
-        data: {
-          ...newPolicy._doc,
-          coverage: `$${newPolicy.coverage.toLocaleString()}`,
-          premium: `$${newPolicy.premium.toFixed(2)}`,
-        },
+        data: formatPolicy(newPolicy),
       });
     } catch (error) {
-      console.error(error.message);
-      res.status(500).json({ error: "Server error" });
+      handleError(res, error);
     }
   }
 );
@@ -84,8 +79,7 @@ router.post(
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const { type, status, sortBy, order, minBalance } = req.query;
-
-    const filters = { user: req.user.id }; // Filtro para el usuario autenticado
+    const filters = { user: req.user.id };
     if (type) filters.type = type;
     if (status) filters.status = status;
     if (minBalance) filters.remainingBalance = { $gte: parseFloat(minBalance) };
@@ -97,20 +91,12 @@ router.get("/", authMiddleware, async (req, res) => {
       });
     }
 
-    const sortOptions = sortBy
-      ? { [sortBy]: order === "desc" ? -1 : 1 }
-      : { startDate: -1 };
+    const sortOptions = sortBy ? { [sortBy]: order === "desc" ? -1 : 1 } : { startDate: -1 };
 
     const policies = await Policy.find(filters).sort(sortOptions);
-
-    const policiesWithBalance = policies.map((policy) => ({
-      ...policy._doc,
-      remainingBalance: policy.premium - policy.payments.reduce((sum, p) => sum + p.amount, 0), // Calcula el saldo restante
-    }));
-
     res.json({
       message: "Policies retrieved successfully",
-      data: policiesWithBalance.map(formatPolicy),
+      data: policies.map(formatPolicy),
     });
   } catch (error) {
     handleError(res, error);
@@ -124,24 +110,15 @@ router.get("/:id", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: "Invalid policy ID" });
     }
 
-    const policy = await Policy.findOne({
-      _id: req.params.id,
-      user: req.user.id,
-    });
+    const policy = await Policy.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!policy) {
       return res.status(404).json({ message: "Policy not found" });
     }
 
-    const remainingBalance =
-      policy.premium - policy.payments.reduce((sum, p) => sum + p.amount, 0);
-
     res.json({
       message: "Policy details retrieved successfully",
-      data: {
-        ...policy._doc,
-        remainingBalance: `$${remainingBalance.toFixed(2)}`,
-      },
+      data: formatPolicy(policy),
     });
   } catch (error) {
     handleError(res, error);
@@ -155,10 +132,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: "Invalid policy ID" });
     }
 
-    const policy = await Policy.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user.id,
-    });
+    const policy = await Policy.findOneAndDelete({ _id: req.params.id, user: req.user.id });
 
     if (!policy) {
       return res.status(404).json({ message: "Policy not found" });

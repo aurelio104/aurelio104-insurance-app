@@ -5,12 +5,12 @@ import RegisterPage from "./pages/RegisterPage";
 import PoliciesPage from "./pages/PoliciesPage";
 import PaymentsPage from "./pages/PaymentsPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import MainPage from "./pages/MainPage"; // Importar la página principal
+import MainPage from "./pages/MainPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import UserPage from "./pages/UserPage"; // Importar la página del usuario
-import StatsPage from "./pages/StatsPage"; // Importar la página de estadísticas
-import SimulatorPage from "./pages/SimulatorPage"; // Nueva página para el simulador
-import ReportClaimPage from "./pages/ReportClaimPage"; // Nueva página para reportar siniestros
+import UserPage from "./pages/UserPage";
+import StatsPage from "./pages/StatsPage";
+import SimulatorPage from "./pages/SimulatorPage";
+import ReportClaimPage from "./pages/ReportClaimPage";
 import SimulatorSalud from "./pages/SimulatorSalud";
 import SimulatorAuto from "./pages/SimulatorAuto";
 import SimulatorHogar from "./pages/SimulatorHogar";
@@ -22,164 +22,44 @@ const ProtectedRoute = ({ isAuthenticated, children }) => {
 };
 
 function App() {
-  const { isAuthenticated } = useAuth(); // Verificar si el usuario está autenticado
+  const { isAuthenticated } = useAuth();
 
   return (
     <Router>
       <Routes>
-        {/* Página de inicio de sesión */}
+        {/* Rutas públicas */}
         <Route
           path="/login"
-          element={
-            !isAuthenticated ? <LoginPage /> : <Navigate to="/main" replace />
-          }
+          element={!isAuthenticated ? <LoginPage /> : <Navigate to="/main" replace />}
         />
-
-        {/* Página de registro */}
         <Route
           path="/register"
-          element={
-            !isAuthenticated ? <RegisterPage /> : <Navigate to="/main" replace />
-          }
+          element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/main" replace />}
         />
-
-        {/* Página de recuperación de contraseña */}
         <Route
           path="/forgot-password"
-          element={
-            !isAuthenticated ? (
-              <ForgotPasswordPage />
-            ) : (
-              <Navigate to="/main" replace />
-            )
-          }
+          element={!isAuthenticated ? <ForgotPasswordPage /> : <Navigate to="/main" replace />}
         />
 
-        {/* Página principal protegida */}
-        <Route
-          path="/main"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <MainPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* Rutas protegidas */}
+        <Route path="/main" element={<ProtectedRoute isAuthenticated={isAuthenticated}><MainPage /></ProtectedRoute>} />
+        <Route path="/user" element={<ProtectedRoute isAuthenticated={isAuthenticated}><UserPage /></ProtectedRoute>} />
+        <Route path="/policies" element={<ProtectedRoute isAuthenticated={isAuthenticated}><PoliciesPage /></ProtectedRoute>} />
+        <Route path="/payments" element={<ProtectedRoute isAuthenticated={isAuthenticated}><PaymentsPage /></ProtectedRoute>} />
+        <Route path="/stats" element={<ProtectedRoute isAuthenticated={isAuthenticated}><StatsPage /></ProtectedRoute>} />
+        <Route path="/simulator" element={<ProtectedRoute isAuthenticated={isAuthenticated}><SimulatorPage /></ProtectedRoute>} />
+        <Route path="/report-claim" element={<ProtectedRoute isAuthenticated={isAuthenticated}><ReportClaimPage /></ProtectedRoute>} />
 
-        {/* Página de usuario protegida */}
-        <Route
-          path="/user"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <UserPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* Rutas específicas de simuladores protegidas */}
+        <Route path="/simulator/salud" element={<ProtectedRoute isAuthenticated={isAuthenticated}><SimulatorSalud /></ProtectedRoute>} />
+        <Route path="/simulator/auto" element={<ProtectedRoute isAuthenticated={isAuthenticated}><SimulatorAuto /></ProtectedRoute>} />
+        <Route path="/simulator/hogar" element={<ProtectedRoute isAuthenticated={isAuthenticated}><SimulatorHogar /></ProtectedRoute>} />
+        <Route path="/simulator/vida" element={<ProtectedRoute isAuthenticated={isAuthenticated}><SimulatorVida /></ProtectedRoute>} />
 
-{/* Página del simulador de salud protegida */}
-<Route
-  path="/SimulatorSalud"
-  element={
-    <ProtectedRoute isAuthenticated={isAuthenticated}>
-      <SimulatorSalud />
-    </ProtectedRoute>
-  }
-/>
+        {/* Redirección automática en la raíz */}
+        <Route path="/" element={isAuthenticated ? <Navigate to="/main" replace /> : <Navigate to="/login" replace />} />
 
-<Route
-  path="/SimulatorAuto"
-  element={
-    <ProtectedRoute isAuthenticated={isAuthenticated}>
-      <SimulatorAuto />
-    </ProtectedRoute>
-  }
-/>
-
-
-<Route
-  path="/SimulatorHogar"
-  element={
-    <ProtectedRoute isAuthenticated={isAuthenticated}>
-      <SimulatorHogar />
-    </ProtectedRoute>
-  }
-/>
-
-
-
-<Route
-  path="/SimulatorVida"
-  element={
-    <ProtectedRoute isAuthenticated={isAuthenticated}>
-      <SimulatorVida />
-    </ProtectedRoute>
-  }
-/>
-
-
-
-        {/* Página de pólizas protegida */}
-        <Route
-          path="/policies"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <PoliciesPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Página de pagos protegida */}
-        <Route
-          path="/payments"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <PaymentsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Página de estadísticas protegida */}
-        <Route
-          path="/stats"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <StatsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Página del simulador protegida */}
-        <Route
-          path="/simulator"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <SimulatorPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Página para reportar siniestros protegida */}
-        <Route
-          path="/report-claim"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <ReportClaimPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Ruta raíz redirige según el estado de autenticación */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/main" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-
-        {/* Ruta para manejar 404 */}
+        {/* Página 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>

@@ -1,18 +1,17 @@
 import axios from "axios";
 
-// Definir la URL base del backend
+// Definir la URL base del backend y eliminar cualquier barra final
 const BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
 console.log("API URL en frontend (process.env):", process.env.REACT_APP_API_URL);
 console.log("API URL en frontend (final):", BASE_URL);
 
-// Crear una instancia de Axios con tiempo de espera predeterminado
+// Crear una instancia de Axios con configuración predeterminada
 const api = axios.create({
-  baseURL: `${BASE_URL}/api`, // Aquí se asegura que use "/api"
+  baseURL: `${BASE_URL}/api`, // Asegurar que use "/api"
   headers: {
     "Content-Type": "application/json",
   },
 });
-
 
 // Interceptor para incluir el token JWT en cada solicitud
 api.interceptors.request.use(
@@ -57,9 +56,7 @@ api.interceptors.response.use(
 
         console.log("[Token Refresh] Intentando renovar token...");
         // Solicitar un nuevo token usando el token de renovación
-        const { data } = await api.post("/auth/refresh-token", {
-          refreshToken,
-        });
+        const { data } = await api.post("/auth/refresh-token", { refreshToken });
 
         // Guardar el nuevo token en el almacenamiento local
         localStorage.setItem("token", data.token);
@@ -78,20 +75,28 @@ api.interceptors.response.use(
       }
     }
 
-    // Manejar errores de permisos
-    if (error.response && error.response.status === 403) {
-      console.error("[Permission Error]:", error.response.data);
-      window.alert("No tienes permisos para realizar esta acción.");
-    }
+    // Manejar errores de autenticación y permisos
+    if (error.response) {
+      switch (error.response.status) {
+        case 403:
+          console.error("[Permission Error]:", error.response.data);
+          window.alert("No tienes permisos para realizar esta acción.");
+          break;
 
-    // Manejar errores de rutas no encontradas
-    if (error.response && error.response.status === 404) {
-      console.error("[Not Found Error]:", error.response.config.url);
-      window.alert("El recurso solicitado no fue encontrado.");
-    }
+        case 404:
+          console.error("[Not Found Error]:", error.response.config.url);
+          window.alert("El recurso solicitado no fue encontrado.");
+          break;
 
-    // Manejo genérico de errores de red
-    if (!error.response) {
+        case 500:
+          console.error("[Server Error]:", error.response.data);
+          window.alert("Error interno del servidor. Intenta nuevamente más tarde.");
+          break;
+
+        default:
+          console.error(`[HTTP Error ${error.response.status}]:`, error.response.data);
+      }
+    } else {
       console.error("[Network Error]: No response received", error.message);
       window.alert("Hubo un problema de red. Por favor, revisa tu conexión.");
     }
