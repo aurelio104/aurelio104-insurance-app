@@ -59,7 +59,7 @@ router.post(
         });
       }
 
-      // 🔹 Registrar el pago (el middleware en Payment.js actualizará `remainingBalance`)
+      // 🔹 Registrar el pago
       const newPayment = new Payment({
         policy: policyId,
         user: req.user.id,
@@ -70,7 +70,7 @@ router.post(
 
       await newPayment.save();
 
-      // 🔹 Recuperar la póliza actualizada con el nuevo saldo
+      // 🔹 Recuperar y actualizar la póliza con el saldo actualizado
       const updatedPolicy = await Policy.findById(policyId);
 
       res.status(201).json({
@@ -82,7 +82,7 @@ router.post(
           amount: newPayment.amount,
           method: newPayment.method,
           status: newPayment.status,
-          remainingBalance: updatedPolicy.remainingBalance, // Ahora sí refleja el saldo actualizado
+          remainingBalance: updatedPolicy.remainingBalance, // 🔹 Reflejar el saldo actualizado
         },
       });
     } catch (error) {

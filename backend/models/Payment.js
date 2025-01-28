@@ -57,7 +57,7 @@ paymentSchema.post("save", async function (doc, next) {
   try {
     if (doc.status === "completed") {
       const Policy = mongoose.model("Policy");
-      const policy = await Policy.findById(doc.policy).populate("payments");
+      const policy = await Policy.findById(doc.policy);
 
       if (policy) {
         const totalPaid = await mongoose.model("Payment").aggregate([
@@ -67,12 +67,18 @@ paymentSchema.post("save", async function (doc, next) {
 
         const paidAmount = totalPaid[0]?.total || 0;
         policy.remainingBalance = Math.max(policy.premium - paidAmount, 0);
-        if (policy.remainingBalance === 0) policy.status = "completed";
-        await policy.save();
+        
+        // 🔹 Asegurar que se actualiza el estado a "completed" si el saldo llega a 0
+        if (policy.remainingBalance === 0) {
+          policy.status = "completed";
+        }
+
+        await policy.save(); // 🔹 Asegurar que los cambios se guardan en la BD
       }
     }
     next();
   } catch (error) {
+    console.error("⚠️ [Payment Middleware Error]:", error.message);
     next(error);
   }
 });
