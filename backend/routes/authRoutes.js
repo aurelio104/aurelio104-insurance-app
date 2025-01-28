@@ -5,6 +5,11 @@ const { registerUser, loginUser } = require("../controllers/authController");
 
 const router = express.Router();
 
+// ✅ Ruta de verificación para comprobar que `authRoutes` está funcionando
+router.get("/", (req, res) => {
+  res.status(200).json({ message: "Ruta de autenticación funcionando correctamente 🚀" });
+});
+
 // Validaciones para autenticación
 const authValidations = {
   register: [
@@ -25,14 +30,13 @@ router.post(
   async (req, res, next) => {
     console.log("Intentando registrar usuario:", req.body);
 
-    // Validación de campos
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.error("Errores de validación al registrar:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
-    next(); // Continuar al controlador
+    next();
   },
   registerUser
 );
@@ -44,7 +48,6 @@ router.post(
   async (req, res, next) => {
     console.log("Intentando iniciar sesión con:", req.body);
 
-    // Validación de campos
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.error("Errores de validación al iniciar sesión:", errors.array());
@@ -53,16 +56,16 @@ router.post(
 
     try {
       const { email } = req.body;
-      const User = require("../models/User"); // Importa el modelo User
+      const User = require("../models/User");
 
       // Verificar si el usuario existe
       const user = await User.findOne({ email });
       if (!user) {
-        console.error("[Login] Error: Usuario no encontrado en la base de datos.");
+        console.error("[Login] Error: Usuario no encontrado.");
         return res.status(404).json({ error: "Usuario no registrado" });
       }
 
-      next(); // Continuar al controlador
+      next();
     } catch (error) {
       console.error("[Login] Error inesperado:", error.message);
       res.status(500).json({ error: "Error interno del servidor" });
@@ -81,18 +84,10 @@ router.post("/refresh-token", async (req, res) => {
   }
 
   try {
-    // Verificar el token de renovación
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
-    // Generar un nuevo token de acceso
-    const newToken = jwt.sign(
-      { id: decoded.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    const newToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     console.log("Token renovado exitosamente para el usuario:", decoded.id);
-
     res.json({ token: newToken });
   } catch (err) {
     console.error("Error al renovar el token:", err.message);

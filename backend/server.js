@@ -127,3 +127,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor ejecutándose en el puerto ${PORT}`);
   console.log(`🔧 Modo: ${process.env.NODE_ENV || "development"}`);
 });
+
