@@ -49,7 +49,6 @@ const paymentSchema = new mongoose.Schema(
   }
 );
 
-
 // Índice para búsquedas frecuentes
 paymentSchema.index({ policy: 1, user: 1, createdAt: -1 });
 
@@ -58,7 +57,7 @@ paymentSchema.post("save", async function (doc, next) {
   try {
     if (doc.status === "completed") {
       const Policy = mongoose.model("Policy");
-      const policy = await Policy.findById(doc.policy);
+      const policy = await Policy.findById(doc.policy).populate("payments");
 
       if (policy) {
         const totalPaid = await mongoose.model("Payment").aggregate([
