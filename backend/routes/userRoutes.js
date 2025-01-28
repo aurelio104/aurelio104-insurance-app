@@ -141,17 +141,28 @@ router.get("/history", authMiddleware, async (req, res) => {
 });
 
 // **Obtener datos del usuario autenticado**
+// **Obtener perfil del usuario**
 router.get("/me", authMiddleware, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: "No autorizado" });
+    if (!req.user || !req.user.id) {
+      console.error("⚠️ [Perfil] No se encontró el ID del usuario en la solicitud.");
+      return res.status(400).json({ error: "No se pudo verificar el usuario." });
+    }
+
+    console.log(`🔎 [Perfil] Obteniendo perfil para el usuario con ID: ${req.user.id}`);
+    
+    const user = await User.findById(req.user.id).select("name email"); // Agregar más datos
+    if (!user) {
+      console.error("⚠️ [Perfil] Usuario no encontrado.");
+      return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
     res.json({
-      id: req.user.id,
-      name: req.user.name,
-      email: req.user.email,
+      id: user._id,
+      name: user.name,  // Ahora devuelve el nombre
+      email: user.email // Ahora devuelve el email
     });
+
   } catch (error) {
     console.error("❌ [Perfil] Error obteniendo perfil del usuario:", error.message);
     res.status(500).json({ error: "Error interno del servidor" });
