@@ -38,7 +38,6 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error("⚠️ [Payment Error] Validation failed:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -47,23 +46,20 @@ router.post(
     try {
       const policy = await Policy.findById(policyId);
       if (!policy) {
-        console.warn(`⚠️ [Payment] Policy not found: ${policyId}`);
         return res.status(404).json({ message: "Policy not found" });
       }
 
       if (policy.remainingBalance <= 0) {
-        console.warn(`⚠️ [Payment] Policy already fully paid: ${policyId}`);
         return res.status(400).json({ message: "Policy is already fully paid." });
       }
 
       if (amount > policy.remainingBalance) {
-        console.warn(`⚠️ [Payment] Payment exceeds remaining balance for policy ${policyId}`);
         return res.status(400).json({
           message: `Payment exceeds remaining balance of $${policy.remainingBalance.toFixed(2)}`,
         });
       }
 
-      // **📌 CREAR PAGO**
+      // Registrar el pago
       const newPayment = new Payment({
         policy: policyId,
         user: req.user.id,
@@ -74,25 +70,25 @@ router.post(
 
       await newPayment.save();
 
-      // **💰 ACTUALIZAR EL SALDO DE LA PÓLIZA**
+      // 🔹 **Actualizar el saldo restante en la póliza**
       policy.remainingBalance -= amount;
       await policy.save();
 
-      console.log(`✅ [Payment] Payment of $${amount} applied to policy ${policyId}`);
       res.status(201).json({
         message: "Payment registered successfully",
         data: {
           id: newPayment._id,
-          policy: policyId,
-          user: req.user.id,
-          amount,
-          method,
+          policy: policy._id,
+          user: newPayment.user,
+          amount: newPayment.amount,
+          method: newPayment.method,
           status: newPayment.status,
-          remainingBalance: policy.remainingBalance, // Nuevo saldo
+          remainingBalance: policy.remainingBalance, // 🔹 Ahora devuelve el saldo actualizado
         },
       });
     } catch (error) {
-      handleError(res, error);
+      console.error("[Payment Error]:", error.message);
+      res.status(500).json({ error: "Server error", details: error.message });
     }
   }
 );
