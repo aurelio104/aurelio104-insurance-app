@@ -96,28 +96,30 @@ const MainPage = () => {
     );
   }
 
-  const promotions = [
-    {
-      title: "Seguro de Salud",
-      description: "20% de descuento en farmacias afiliadas con tu seguro de salud.",
-      image: "/images/salud.jpg",
-    },
-    {
-      title: "Seguro de Auto",
-      description: "Revisión gratuita en talleres afiliados con tu seguro de auto.",
-      image: "/images/auto.jpg",
-    },
-    {
-      title: "Seguro de Hogar",
-      description: "Cobertura completa para desastres naturales sin costo adicional.",
-      image: "/images/hogar.jpg",
-    },
-    {
-      title: "Seguro de Vida",
-      description: "Plan de ahorro incluido con tu seguro de vida premium.",
-      image: "/images/vida.jpg",
-    },
-  ];
+ // 📌 Cambiar rutas a `/public/images/` para asegurar que se cargan correctamente
+ const promotions = [
+  {
+    title: "Seguro de Salud",
+    description: "20% de descuento en farmacias afiliadas con tu seguro de salud.",
+    image: "/images/salud.jpg",
+  },
+  {
+    title: "Seguro de Auto",
+    description: "Revisión gratuita en talleres afiliados con tu seguro de auto.",
+    image: "/images/auto.jpg",
+  },
+  {
+    title: "Seguro de Hogar",
+    description: "Cobertura completa para desastres naturales sin costo adicional.",
+    image: "/images/hogar.jpg",
+  },
+  {
+    title: "Seguro de Vida",
+    description: "Plan de ahorro incluido con tu seguro de vida premium.",
+    image: "/images/vida.jpg",
+  },
+];
+
 
   return (
     <div className="container">
