@@ -69,7 +69,7 @@ paymentSchema.post("save", async function (doc, next) {
       const totalPaid = await mongoose.model("Payment").aggregate([
         {
           $match: {
-            policy: mongoose.Types.ObjectId(policy._id), // Convertir a ObjectId
+            policy: new mongoose.Types.ObjectId(policy._id), // Uso correcto del constructor
             status: "completed",
           },
         },
@@ -100,6 +100,7 @@ paymentSchema.post("save", async function (doc, next) {
     next(error);
   }
 });
+
 
 
 module.exports = mongoose.model("Payment", paymentSchema);
