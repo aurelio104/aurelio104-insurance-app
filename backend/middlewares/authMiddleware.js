@@ -1,13 +1,11 @@
 const jwt = require("jsonwebtoken");
 
-const protect = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   try {
     // Obtener el encabezado de autorización
     const authHeader = req.header("Authorization");
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.warn("[AuthMiddleware] No token provided.");
-      return res.status(401).json({ error: "Acceso no autorizado: Token no proporcionado" });
+      return res.status(401).json({ error: "No token provided, authorization denied" });
     }
 
     // Extraer el token
@@ -15,20 +13,12 @@ const protect = (req, res, next) => {
 
     // Verificar el token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Adjuntar los datos del usuario al objeto req
-
-    console.log("[AuthMiddleware] Usuario autenticado:", decoded.id);
+    req.user = decoded; // Adjuntar los datos del usuario decodificados al objeto req
     next();
   } catch (err) {
-    console.error("[AuthMiddleware] Error en la verificación del token:", err.message);
-
-    const errorMessage =
-      err.name === "TokenExpiredError"
-        ? "El token ha expirado, por favor inicia sesión nuevamente."
-        : "Token inválido o no autorizado.";
-
-    return res.status(401).json({ error: errorMessage });
+    console.error("Error en la verificación del token:", err.message);
+    res.status(401).json({ error: "Invalid or expired token" });
   }
 };
 
-module.exports = protect;
+module.exports = authMiddleware;
