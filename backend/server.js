@@ -41,7 +41,7 @@ const PORT = process.env.PORT || 8000;
 // Middleware de seguridad
 app.use(helmet({ contentSecurityPolicy: false }));
 
-// 🔧 Configuración de CORS dinámica
+// Configuración de CORS dinámica
 const allowedOrigins = [
   process.env.CLIENT_URL?.replace(/\/$/, ""),
   "http://localhost:3000",
@@ -49,7 +49,8 @@ const allowedOrigins = [
   "https://insurance-app-xi.vercel.app",
   "https://insurance-app-sandy.vercel.app",
   "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app",
-  "https://insurance-pn48n0wza-aurelio104s-projects.vercel.app",
+  "https://insurance-3gzup83o0-aurelio104s-projects.vercel.app",
+  "https://insurance-frq4np317-aurelio104s-projects.vercel.app", // ✅ Agregada la nueva URL
 ];
 
 app.use(cors({
