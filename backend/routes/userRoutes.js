@@ -12,26 +12,27 @@ const handleError = (res, error, statusCode = 500) => {
   console.error("❌ Error:", error.message);
   res.status(statusCode).json({
     error: "Server error",
-    details: error.message,
+    details: process.env.NODE_ENV === "development" ? error.message : undefined,
   });
 };
 
-// **Obtener perfil del usuario**
+// **Obtener perfil del usuario autenticado**
 router.get("/profile", authMiddleware, async (req, res) => {
   try {
-    if (!req.user || !req.user.id) {
+    if (!req.user?.id) {
       console.error("⚠️ [Perfil] No se encontró el ID del usuario en la solicitud.");
       return res.status(400).json({ error: "No se pudo verificar el usuario." });
     }
 
-    console.log(`🔎 [Perfil] Obteniendo perfil para el usuario con ID: ${req.user.id}`);
+    console.log(`🔎 [Perfil] Obteniendo datos del usuario con ID: ${req.user.id}`);
     const user = await User.findById(req.user.id).select("-password");
+    
     if (!user) {
       console.error("⚠️ [Perfil] Usuario no encontrado.");
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
-    res.json({ message: "Perfil de usuario obtenido con éxito.", user });
+    res.json({ message: "✅ Perfil de usuario obtenido con éxito.", user });
   } catch (error) {
     handleError(res, error);
   }
@@ -42,25 +43,22 @@ router.put(
   "/update",
   authMiddleware,
   [
-    check("name", "El nombre debe tener al menos 3 caracteres").optional().isLength({ min: 3 }),
-    check("email", "Proporcione un correo electrónico válido").optional().isEmail(),
-    check("password", "La contraseña debe tener al menos 6 caracteres").optional().isLength({ min: 6 }),
+    check("name").optional().isLength({ min: 3 }).withMessage("El nombre debe tener al menos 3 caracteres"),
+    check("email").optional().isEmail().withMessage("Proporcione un correo electrónico válido"),
+    check("password").optional().isLength({ min: 6 }).withMessage("La contraseña debe tener al menos 6 caracteres"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error("⚠️ [Actualizar Perfil] Errores de validación:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     try {
-      console.log(`✏️ [Actualizar Perfil] Actualizando datos para el usuario con ID: ${req.user.id}`);
+      console.log(`✏️ [Actualizar Perfil] Actualizando usuario con ID: ${req.user.id}`);
       const { name, email, password } = req.body;
       const updates = { name, email };
 
-      if (password) {
-        updates.password = password; // Se maneja el hash en el modelo User
-      }
+      if (password) updates.password = password; // Se maneja el hash en el modelo User
 
       const updatedUser = await User.findByIdAndUpdate(req.user.id, updates, {
         new: true,
@@ -68,17 +66,12 @@ router.put(
       });
 
       if (!updatedUser) {
-        console.error("⚠️ [Actualizar Perfil] Usuario no encontrado.");
         return res.status(404).json({ error: "Usuario no encontrado." });
       }
 
       res.json({
-        message: "✅ Perfil de usuario actualizado con éxito.",
-        user: {
-          id: updatedUser._id,
-          name: updatedUser.name,
-          email: updatedUser.email,
-        },
+        message: "✅ Perfil actualizado con éxito.",
+        user: { id: updatedUser._id, name: updatedUser.name, email: updatedUser.email },
       });
     } catch (error) {
       handleError(res, error);
@@ -89,21 +82,19 @@ router.put(
 // **Restablecimiento de contraseña**
 router.post(
   "/forgot-password",
-  [check("email", "Proporcione un correo electrónico válido").isEmail()],
+  [check("email").isEmail().withMessage("Proporcione un correo electrónico válido")],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error("⚠️ [Restablecimiento Contraseña] Errores de validación:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { email } = req.body;
 
     try {
-      console.log(`🔎 [Restablecimiento Contraseña] Buscando usuario con correo: ${email}`);
+      console.log(`🔎 [Restablecimiento Contraseña] Buscando usuario: ${email}`);
       const user = await User.findOne({ email });
       if (!user) {
-        console.error("⚠️ [Restablecimiento Contraseña] Usuario no encontrado.");
         return res.status(404).json({ message: "Usuario no encontrado." });
       }
 
@@ -112,14 +103,10 @@ router.post(
       user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
       await user.save();
 
-      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+      const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/reset-password/${resetToken}`;
       const message = `Haga clic en el enlace para restablecer su contraseña: ${resetUrl}`;
 
-      await sendEmail({
-        to: user.email,
-        subject: "🔑 Restablecimiento de contraseña",
-        text: message,
-      });
+      await sendEmail({ to: user.email, subject: "🔑 Restablecimiento de contraseña", text: message });
 
       res.json({ message: "📧 Correo de restablecimiento de contraseña enviado." });
     } catch (error) {
@@ -131,43 +118,39 @@ router.post(
 // **Historial de conexiones**
 router.get("/history", authMiddleware, async (req, res) => {
   try {
-    console.log(`📜 [Historial de Conexiones] Obteniendo historial para el usuario con ID: ${req.user.id}`);
+    console.log(`📜 [Historial de Conexiones] Usuario ID: ${req.user.id}`);
     const history = await ConnectionLog.find({ user: req.user.id }).sort({ date: -1 });
 
-    res.json({ message: "📊 Historial de conexiones obtenido con éxito.", history });
+    res.json({ message: "📊 Historial obtenido con éxito.", history });
   } catch (err) {
     handleError(res, err);
   }
 });
 
 // **Obtener datos del usuario autenticado**
-// **Obtener perfil del usuario**
 router.get("/me", authMiddleware, async (req, res) => {
   try {
-    if (!req.user || !req.user.id) {
-      console.error("⚠️ [Perfil] No se encontró el ID del usuario en la solicitud.");
+    if (!req.user?.id) {
       return res.status(400).json({ error: "No se pudo verificar el usuario." });
     }
 
-    console.log(`🔎 [Perfil] Obteniendo perfil para el usuario con ID: ${req.user.id}`);
-    
-    const user = await User.findById(req.user.id).select("name email"); // Agregar más datos
+    console.log(`🔎 [Perfil] Obteniendo perfil del usuario ID: ${req.user.id}`);
+    const user = await User.findById(req.user.id).select("name email role isActive");
+
     if (!user) {
-      console.error("⚠️ [Perfil] Usuario no encontrado.");
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
 
     res.json({
       id: user._id,
-      name: user.name,  // Ahora devuelve el nombre
-      email: user.email // Ahora devuelve el email
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
     });
-
   } catch (error) {
-    console.error("❌ [Perfil] Error obteniendo perfil del usuario:", error.message);
-    res.status(500).json({ error: "Error interno del servidor" });
+    handleError(res, error);
   }
 });
-
 
 module.exports = router;
