@@ -100,25 +100,25 @@ const promotions = [
   {
     title: "Seguro de Salud",
     description: "20% de descuento en farmacias afiliadas con tu seguro de salud.",
-    image: "/images/salud.jpg", // ✅ CORRECTO
+    image: "/salud.jpg",
   },
   {
     title: "Seguro de Auto",
     description: "Revisión gratuita en talleres afiliados con tu seguro de auto.",
-    image: "/images/auto.jpg", // ✅ CORRECTO
+    image: "/auto.jpg",
   },
   {
     title: "Seguro de Hogar",
     description: "Cobertura completa para desastres naturales sin costo adicional.",
-    image: "/images/hogar.jpg", // ✅ CORRECTO
+    image: "/hogar.jpg",
   },
   {
     title: "Seguro de Vida",
     description: "Plan de ahorro incluido con tu seguro de vida premium.",
-    image: "/images/vida.jpg", // ✅ CORRECTO
+    image: "/vida.jpg",
   },
 ];
-
+  
 
   return (
     <div className="container">
