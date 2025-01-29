@@ -13,22 +13,17 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const passwordRoutes = require("./routes/passwordRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const authRoutes = require("./routes/authRoutes");
-const claimRoutes = require("./routes/claimRoutes"); // Nueva ruta para reportar siniestros
+const claimRoutes = require("./routes/claimRoutes"); 
 
 // Cargar variables de entorno
 dotenv.config();
 
 // Validar variables de entorno requeridas
-const requiredEnvVars = [
-  "MONGO_URI",
-  "JWT_SECRET",
-  "JWT_REFRESH_SECRET",
-  "CLIENT_URL",
-];
+const requiredEnvVars = ["MONGO_URI", "JWT_SECRET", "JWT_REFRESH_SECRET", "CLIENT_URL"];
 
 const missingVars = requiredEnvVars.filter((env) => !process.env[env]);
 if (missingVars.length) {
-  console.error("❌ Error: Faltan variables de entorno obligatorias:", missingVars);
+  console.error("Error: Faltan variables de entorno obligatorias:", missingVars);
   process.exit(1);
 }
 
@@ -41,37 +36,39 @@ connectDB()
   });
 
 const app = express();
-const PORT = process.env.PORT || 8000; // Asegurar que use el puerto correcto
+const PORT = process.env.PORT || 8000;
 
 // Middleware de seguridad
 app.use(helmet({ contentSecurityPolicy: false }));
 
 // Configuración de CORS dinámica
 const allowedOrigins = [
-  process.env.CLIENT_URL, // 🔹 Dominio del frontend desde variables de entorno
+  process.env.CLIENT_URL,
   "http://localhost:3000",
   "http://localhost:5173",
-  "https://insurance-app-sandy.vercel.app", // 🔹 Verifica que este es el correcto
-  "https://insurance-3gzup83o0-aurelio104s-projects.vercel.app", // 🔹 Verifica este también
-  "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app", // 🔹 URL del backend en Koyeb
+  "https://insurance-app-xi.vercel.app",
+  "https://insurance-app-sandy.vercel.app",
+  "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app",
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      console.log(`🌐 Solicitud desde: ${origin}`);
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`🛑 Origen no permitido por CORS: ${origin}`);
-        callback(new Error("No permitido por CORS"));
-      }
-    },
-    credentials: true,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-  })
-);
+// Middleware CORS mejorado con manejo de preflight requests
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
+    res.header("Access-Control-Allow-Credentials", "true");
+
+    // Responder directamente a las solicitudes OPTIONS (Preflight requests)
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(204);
+    }
+  } else {
+    console.warn(`🛑 Origen no permitido por CORS: ${origin}`);
+  }
+  next();
+});
 
 // Middleware para parsear JSON y datos codificados en URL
 app.use(express.json());
@@ -80,7 +77,7 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware de logging
 app.use(morgan("dev"));
 
-// Middleware adicional para debugging
+// Middleware de debugging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.path}`);
   if (Object.keys(req.body).length) console.log("📌 Body:", req.body);
