@@ -72,7 +72,7 @@ paymentSchema.post("save", async function (doc, next) {
       const totalPaid = await mongoose.model("Payment").aggregate([
         {
           $match: {
-            policy: doc.policy, // Sin necesidad de convertir a ObjectId
+            policy: doc.policy,
             status: "completed",
           },
         },
@@ -87,18 +87,23 @@ paymentSchema.post("save", async function (doc, next) {
       const paidAmount = totalPaid[0]?.total || 0;
       console.log("💰 Total pagado hasta ahora:", paidAmount);
 
-      // 🏦 Actualizar saldo restante
-      policy.remainingBalance = Math.max(policy.premium - paidAmount, 0);
-      console.log("💳 Nuevo saldo restante:", policy.remainingBalance);
+      // 🏦 Calcular el saldo restante
+      const newRemainingBalance = Math.max(policy.premium - paidAmount, 0);
+      console.log("💳 Nuevo saldo restante:", newRemainingBalance);
 
-      // 📌 Cambiar estado si se pagó completamente
-      if (policy.remainingBalance === 0) {
-        policy.status = "completed";
-        console.log("🎉 Póliza marcada como COMPLETADA");
-      }
+      // 📌 Determinar el nuevo estado de la póliza
+      const newStatus = newRemainingBalance === 0 ? "completed" : policy.status;
 
-      // 🔄 Guardar cambios en la póliza
-      const updatedPolicy = await policy.save();
+      // 🔄 Actualizar la póliza de forma explícita en la base de datos
+      const updatedPolicy = await Policy.findByIdAndUpdate(
+        policy._id,
+        {
+          remainingBalance: newRemainingBalance,
+          status: newStatus,
+        },
+        { new: true } // Esta opción asegura que obtenemos la versión actualizada del documento
+      );
+
       console.log("✅ Póliza actualizada correctamente:", updatedPolicy);
     }
 
@@ -108,5 +113,6 @@ paymentSchema.post("save", async function (doc, next) {
     next(error);
   }
 });
+
 
 module.exports = mongoose.model("Payment", paymentSchema);
