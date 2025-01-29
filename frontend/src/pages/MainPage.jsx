@@ -150,11 +150,12 @@ const MainPage = () => {
           <p><strong>Correo:</strong> {userData?.email}</p>
         </div>
       </div>
+      
       <div className="insurance-container">
         <Typography variant="h4" className="insurance-title">Elige tu Seguro</Typography>
         <Grid container spacing={2} className="insurance-options">
           <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorSalud")} sx={{ "&:hover": { boxShadow: 3 } }}>
+            <Card className="selected" onClick={() => navigate("/simulator/salud")} sx={{ "&:hover": { boxShadow: 3 } }}>
               <CardContent>
                 <HealthIcon />
                 <Typography>Salud</Typography>
@@ -162,7 +163,7 @@ const MainPage = () => {
             </Card>
           </Grid>
           <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorAuto")} sx={{ "&:hover": { boxShadow: 3 } }}>
+            <Card className="selected" onClick={() => navigate("/simulator/auto")} sx={{ "&:hover": { boxShadow: 3 } }}>
               <CardContent>
                 <CarIcon />
                 <Typography>Autos</Typography>
@@ -170,7 +171,7 @@ const MainPage = () => {
             </Card>
           </Grid>
           <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorHogar")} sx={{ "&:hover": { boxShadow: 3 } }}>
+            <Card className="selected" onClick={() => navigate("/simulator/hogar")} sx={{ "&:hover": { boxShadow: 3 } }}>
               <CardContent>
                 <HomeIcon />
                 <Typography>Hogar</Typography>
@@ -178,7 +179,7 @@ const MainPage = () => {
             </Card>
           </Grid>
           <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorVida")} sx={{ "&:hover": { boxShadow: 3 } }}>
+            <Card className="selected" onClick={() => navigate("/simulator/vida")} sx={{ "&:hover": { boxShadow: 3 } }}>
               <CardContent>
                 <ShieldIcon />
                 <Typography>Vida</Typography>
@@ -192,6 +193,7 @@ const MainPage = () => {
         <Typography variant="h5" className="insurance-price">Desde <strong>$20</strong>.79 USD al mes</Typography>
         <Button className="quote-button" onClick={() => navigate("/simulator")}>COTIZA AQUÍ</Button>
       </div>
+
 
       <div className="insurance-container">
         <Typography variant="h4" className="insurance-title">Promociones Especiales</Typography>
