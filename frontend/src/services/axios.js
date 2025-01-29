@@ -1,9 +1,9 @@
 import axios from "axios";
 
-// Definir la URL base del backend y eliminar cualquier barra final
-const BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
-console.log("API URL en frontend (process.env):", process.env.REACT_APP_API_URL);
-console.log("API URL en frontend (final):", BASE_URL);
+// Usar la variable de entorno correcta para Vite
+const BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+
+console.log("API URL en frontend:", BASE_URL);
 
 // Crear una instancia de Axios con configuración predeterminada
 const api = axios.create({
