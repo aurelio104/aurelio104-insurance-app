@@ -118,7 +118,7 @@ const MainPage = () => {
       image: "/vida.jpg",
     },
   ];
-
+  
   return (
     <div className="container">
       <AppBar position="static" className="app-bar" style={{ backgroundColor: "#4a4a4a", color: "#ffffff" }}>
@@ -150,7 +150,6 @@ const MainPage = () => {
           <p><strong>Correo:</strong> {userData?.email}</p>
         </div>
       </div>
-
       <div className="insurance-container">
         <Typography variant="h4" className="insurance-title">Elige tu Seguro</Typography>
         <Grid container spacing={2} className="insurance-options">

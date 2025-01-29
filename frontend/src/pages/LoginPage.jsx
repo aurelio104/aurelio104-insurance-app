@@ -94,12 +94,12 @@ const LoginPage = () => {
             />
             {formErrors.password && <p className="error-message">{formErrors.password}</p>}
           </div>
-          <button type="submit" className="button" disabled={isLoading}>
+          <button className="quote-button"              type="submit" disabled={isLoading}>
             {isLoading ? <CircularProgress size={24} color="inherit" /> : "Iniciar Sesión"}
           </button>
         </form>
-        <p className="link" onClick={() => navigate("/forgot-password")}>Recuperar contraseña</p>
-        <p className="link" onClick={() => navigate("/register")}>Registrarse</p>
+        <p className="quote-button"              type="submit"onClick={() => navigate("/forgot-password")}>Recuperar contraseña</p>
+        <p className="quote-button"              type="submit"onClick={() => navigate("/register")}>Registrarse</p>
       </div>
     </div>
   );

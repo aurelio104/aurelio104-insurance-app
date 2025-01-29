@@ -90,14 +90,17 @@ const RegisterPage = () => {
             />
             {formErrors.password && <p className="error-message">{formErrors.password}</p>}
           </div>
-          <button className="button" type="submit" disabled={isSubmitting}>
+          <button className="quote-button"              type="submit" disabled={isSubmitting}>
             {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Registrarse'}
           </button>
         </form>
-        <p className="link" onClick={() => navigate('/login')}>Volver al inicio de sesión</p>
+        <p className="quote-button"              type="submit" onClick={() => navigate('/login')}>Volver al inicio de sesión</p>
       </div>
     </div>
   );
 };
 
 export default RegisterPage;
+
+
+

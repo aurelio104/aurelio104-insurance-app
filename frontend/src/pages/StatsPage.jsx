@@ -10,6 +10,10 @@ import {
   Menu,
   MenuItem,
   Typography,
+  Button,
+  Card,
+  CardContent,
+  Grid,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -133,8 +137,22 @@ const StatsPage = () => {
 
   return (
     <div className="container">
-      <AppBar position="static" className="app-bar">
+      <AppBar position="static" className="app-bar" style={{ backgroundColor: "#4a4a4a", color: "#ffffff" }}>
         <Toolbar>
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleMenuOpen}>
+            <MenuIcon />
+          </IconButton>
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+            <MenuItem onClick={() => navigate("/main")}>Inicio</MenuItem>
+            <MenuItem onClick={() => navigate("/policies")}>Pólizas</MenuItem>
+            <MenuItem onClick={() => navigate("/payments")}>Pagos</MenuItem>
+            <MenuItem onClick={() => navigate("/stats")}>Estadísticas</MenuItem>
+            <MenuItem onClick={() => navigate("/simulator")}>Simulador</MenuItem>
+            <MenuItem onClick={() => navigate("/report-claim")}>Reporte de Siniestro</MenuItem>
+          </Menu>
+          <Typography variant="h6" className="app-bar-title">
+          Estadisticas del Usuario
+          </Typography>
           <IconButton
             edge="start"
             color="inherit"
@@ -143,29 +161,6 @@ const StatsPage = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" className="app-bar-title">
-            Estadísticas del Usuario
-          </Typography>
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleMenuOpen}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
-            <MenuItem onClick={() => navigate("/main")}>Inicio</MenuItem>
-            <MenuItem onClick={() => navigate("/policies")}>Pólizas</MenuItem>
-            <MenuItem onClick={() => navigate("/payments")}>Pagos</MenuItem>
-            <MenuItem onClick={() => navigate("/stats")}>Estadísticas</MenuItem>
-            <MenuItem onClick={() => navigate("/simulator")}>Simulador</MenuItem>
-            <MenuItem onClick={() => navigate("/report-claim")}>Reporte de Siniestro</MenuItem>
-          </Menu>
         </Toolbar>
       </AppBar>
 
@@ -182,12 +177,11 @@ const StatsPage = () => {
         <div className="card">
           <h2 className="title">Total Adeudado</h2>
           <p>{totalRemainingBalance}</p>
-          <button
-            className="button-primary"
-            onClick={() => navigate("/payments")}
-          >
-            Pagar / Abonar
-          </button>
+
+          <Button className="quote-button" 
+
+                                           onClick={() => navigate("/payments")}>Pagar / Abonar</Button>
+
         </div>
       </div>
 

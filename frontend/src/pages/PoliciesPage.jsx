@@ -90,8 +90,22 @@ const PoliciesPage = () => {
   return (
     <div className="container">
       {/* Barra de navegación */}
-      <AppBar position="static" className="app-bar">
+      <AppBar position="static" className="app-bar" style={{ backgroundColor: "#4a4a4a", color: "#ffffff" }}>
         <Toolbar>
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleMenuOpen}>
+            <MenuIcon />
+          </IconButton>
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+            <MenuItem onClick={() => navigate("/main")}>Inicio</MenuItem>
+            <MenuItem onClick={() => navigate("/policies")}>Pólizas</MenuItem>
+            <MenuItem onClick={() => navigate("/payments")}>Pagos</MenuItem>
+            <MenuItem onClick={() => navigate("/stats")}>Estadísticas</MenuItem>
+            <MenuItem onClick={() => navigate("/simulator")}>Simulador</MenuItem>
+            <MenuItem onClick={() => navigate("/report-claim")}>Reporte de Siniestro</MenuItem>
+          </Menu>
+          <Typography variant="h6" className="app-bar-title">
+           Mis Polizas
+          </Typography>
           <IconButton
             edge="start"
             color="inherit"
@@ -100,34 +114,8 @@ const PoliciesPage = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" className="app-bar-title">
-            Mis Pólizas
-          </Typography>
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleMenuOpen}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
-            <MenuItem onClick={() => navigate("/main")}>Inicio</MenuItem>
-            <MenuItem onClick={() => navigate("/policies")}>Pólizas</MenuItem>
-            <MenuItem onClick={() => navigate("/payments")}>Pagos</MenuItem>
-            <MenuItem onClick={() => navigate("/stats")}>Estadísticas</MenuItem>
-            <MenuItem onClick={() => navigate("/simulator")}>Simulador</MenuItem>
-            <MenuItem onClick={() => navigate("/report-claim")}>
-              Reporte de Siniestro
-            </MenuItem>
-          </Menu>
         </Toolbar>
       </AppBar>
-
       {/* Contenido principal */}
       <div className="grid">
         {/* Resumen de Pólizas */}
@@ -167,8 +155,7 @@ const PoliciesPage = () => {
 
         {/* Botón de Nueva Póliza */}
         <div className="card">
-          <Button
-            className="button-primary"
+        <Button className="quote-button" 
             onClick={() => navigate("/simulator")}
             fullWidth
           >

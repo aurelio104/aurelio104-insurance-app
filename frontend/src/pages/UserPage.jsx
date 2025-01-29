@@ -100,36 +100,30 @@ const UserPage = () => {
   return (
     <div className="container">
       {/* Barra superior */}
-      <AppBar position="static" className="app-bar">
+      <AppBar position="static" className="app-bar" style={{ backgroundColor: "#4a4a4a", color: "#ffffff" }}>
         <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h6" className="app-bar-title">
-            Perfil de Usuario
-          </Typography>
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleMenuOpen}
-          >
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleMenuOpen}>
             <MenuIcon />
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
             <MenuItem onClick={() => navigate("/main")}>Inicio</MenuItem>
             <MenuItem onClick={() => navigate("/policies")}>Pólizas</MenuItem>
-            <MenuItem onClick={() => navigate("/stats")}>Estadísticas</MenuItem>
             <MenuItem onClick={() => navigate("/payments")}>Pagos</MenuItem>
+            <MenuItem onClick={() => navigate("/stats")}>Estadísticas</MenuItem>
             <MenuItem onClick={() => navigate("/simulator")}>Simulador</MenuItem>
-            <MenuItem onClick={() => navigate("/report-claim")}>
-              Reporte de Siniestro
-            </MenuItem>
+            <MenuItem onClick={() => navigate("/report-claim")}>Reporte de Siniestro</MenuItem>
           </Menu>
+          <Typography variant="h6" className="app-bar-title">
+           Perfin de Usuario
+          </Typography>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="back"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowBackIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -147,8 +141,7 @@ const UserPage = () => {
                 Fecha de Creación:{" "}
                 {new Date(userData?.createdAt).toLocaleDateString() || "N/A"}
               </p>
-              <Button
-                className="button-primary"
+              <Button className="quote-button" 
                 onClick={() => setEditMode(true)}
               >
                 Editar Información
@@ -176,11 +169,10 @@ const UserPage = () => {
                 fullWidth
               />
               <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                <Button className="button-primary" onClick={handleEditSubmit}>
+              <Button className="quote-button"  onClick={handleEditSubmit}>
                   Guardar Cambios
                 </Button>
-                <Button
-                  className="button"
+                <Button className="quote-button" 
                   onClick={() => setEditMode(false)}
                 >
                   Cancelar
@@ -194,8 +186,7 @@ const UserPage = () => {
         <div className="card">
           <h2 className="title">Acciones</h2>
           <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-            <Button
-              className="button-primary"
+          <Button className="quote-button" 
               onClick={() => navigate("/history")}
             >
               Ver Historial

@@ -67,21 +67,12 @@ const ReportsPage = () => {
 
   return (
     <div className="container">
-      <AppBar position="static" className="app-bar">
+      <AppBar position="static" className="app-bar" style={{ backgroundColor: "#4a4a4a", color: "#ffffff" }}>
         <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleMenuOpen}
-          >
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleMenuOpen}>
             <MenuIcon />
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
             <MenuItem onClick={() => navigate("/main")}>Inicio</MenuItem>
             <MenuItem onClick={() => navigate("/policies")}>Pólizas</MenuItem>
             <MenuItem onClick={() => navigate("/payments")}>Pagos</MenuItem>
@@ -90,10 +81,15 @@ const ReportsPage = () => {
             <MenuItem onClick={() => navigate("/report-claim")}>Reporte de Siniestro</MenuItem>
           </Menu>
           <Typography variant="h6" className="app-bar-title">
-            Bienvenido, {userData?.name || "Usuario"}
+           Reportes
           </Typography>
-          <IconButton color="inherit" onClick={logout} aria-label="logout">
-            <LogoutIcon />
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="back"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowBackIcon />
           </IconButton>
         </Toolbar>
       </AppBar>

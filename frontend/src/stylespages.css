@@ -1,6 +1,4 @@
-/* ========== Contenedor Principal ========== */
-/* Contenedor principal con scroll */
-/* ========== Contenedor Principal ========== */
+
 /* Contenedor principal con scroll (Para todas las páginas excepto login, registro y recuperación de contraseña) */
 .container {
     display: flex;
@@ -87,7 +85,9 @@
     gap: 10px;
     box-sizing: border-box;
     margin: 20px auto;
-}
+    color: #000000; /* Negro */
+    }
+    
 
 /* ========== Grid ========== */
 .grid {
@@ -96,6 +96,7 @@
     gap: 20px;
     width: 100%;
     justify-items: center;
+    
 }
 
 /* ========== Sección de Seguros ========== */
@@ -113,6 +114,7 @@
     gap: 10px;
     box-sizing: border-box;
     margin: 20px auto;
+    color: #000000; /* Negro */
 }
 
 .insurance-title, .promotions-title {

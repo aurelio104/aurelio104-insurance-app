@@ -22,11 +22,11 @@ const ForgotPasswordPage = () => {
               aria-label="Correo Electrónico"
             />
           </div>
-          <button className="button" type="submit" disabled={isSubmitting}>
+          <button className="quote-button"              type="submit" disabled={isSubmitting}>
             {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Enviar'}
           </button>
         </form>
-        <p className="link" onClick={() => navigate('/login')}>
+        <p className="quote-button"              type="submit" onClick={() => navigate('/login')}>
           Volver al inicio de sesión
         </p>
       </div>
