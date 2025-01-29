@@ -1,13 +1,13 @@
 import axios from "axios";
 
-// Usar la variable de entorno correcta para Vite
+// Usar la variable de entorno correctamente en Vite
 const BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
 
 console.log("🚀 API URL en frontend:", BASE_URL);
 
 // Crear una instancia de Axios con configuración predeterminada
 const api = axios.create({
-  baseURL: BASE_URL, // Eliminamos "/api" aquí para evitar duplicados
+  baseURL: `${BASE_URL}/api`, // Asegurar que use "/api"
   headers: {
     "Content-Type": "application/json",
   },
@@ -56,7 +56,7 @@ api.interceptors.response.use(
 
         console.log("[Token Refresh] Intentando renovar token...");
         // Solicitar un nuevo token usando el token de renovación
-        const { data } = await api.post("/api/auth/refresh-token", { refreshToken });
+        const { data } = await api.post("/auth/refresh-token", { refreshToken });
 
         // Guardar el nuevo token en el almacenamiento local
         localStorage.setItem("token", data.token);
