@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../services/axios';
 import CircularProgress from '@mui/material/CircularProgress';
-import "../stylespages.css";
+import '../styles.css';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -101,4 +101,3 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
-

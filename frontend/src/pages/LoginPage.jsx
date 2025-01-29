@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/axios";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import "../stylespages.css";
+import "../styles.css";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -106,4 +106,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-

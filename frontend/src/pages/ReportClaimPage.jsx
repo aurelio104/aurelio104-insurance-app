@@ -233,4 +233,3 @@ const ReportClaimPage = () => {
 };
 
 export default ReportClaimPage;
-
