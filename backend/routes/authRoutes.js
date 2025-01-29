@@ -2,6 +2,8 @@ const express = require("express");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const { registerUser, loginUser } = require("../controllers/authController");
+const authMiddleware = require("../middlewares/authMiddleware");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -56,7 +58,6 @@ router.post(
 
     try {
       const { email } = req.body;
-      const User = require("../models/User");
 
       // Verificar si el usuario existe
       const user = await User.findOne({ email });
@@ -97,6 +98,20 @@ router.post("/refresh-token", async (req, res) => {
   } catch (err) {
     console.error("❌ [Token Refresh] Error al renovar el token:", err.message);
     res.status(401).json({ error: "Token de renovación inválido o expirado" });
+  }
+});
+
+// **Ruta para obtener el perfil del usuario autenticado**
+router.get("/profile", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+    res.json({ message: "Perfil obtenido con éxito.", user });
+  } catch (error) {
+    console.error("❌ [Perfil] Error obteniendo perfil del usuario:", error.message);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
