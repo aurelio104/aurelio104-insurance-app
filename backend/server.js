@@ -21,6 +21,7 @@ dotenv.config();
 // Validar variables de entorno requeridas
 const requiredEnvVars = ["MONGO_URI", "JWT_SECRET", "JWT_REFRESH_SECRET", "CLIENT_URL"];
 const missingVars = requiredEnvVars.filter((env) => !process.env[env]);
+
 if (missingVars.length) {
   console.error("❌ Error: Faltan variables de entorno obligatorias:", missingVars);
   process.exit(1);
@@ -40,7 +41,7 @@ const PORT = process.env.PORT || 8000;
 // Middleware de seguridad
 app.use(helmet({ contentSecurityPolicy: false }));
 
-// Configuración de CORS dinámica
+// 🔧 Configuración de CORS dinámica
 const allowedOrigins = [
   process.env.CLIENT_URL?.replace(/\/$/, ""),
   "http://localhost:3000",
@@ -48,10 +49,9 @@ const allowedOrigins = [
   "https://insurance-app-xi.vercel.app",
   "https://insurance-app-sandy.vercel.app",
   "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app",
-  "https://insurance-3gzup83o0-aurelio104s-projects.vercel.app",
+  "https://insurance-pn48n0wza-aurelio104s-projects.vercel.app",
 ];
 
-// Middleware CORS automático con Express
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -73,7 +73,7 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware de logging
 app.use(morgan("dev"));
 
-// Middleware de debugging
+// Middleware de debugging detallado
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.path}`);
   if (Object.keys(req.body).length) console.log("📌 Body:", req.body);
@@ -95,7 +95,7 @@ app.use("/api/claims", claimRoutes);
 // Ruta base para verificar el estado del servidor
 app.get("/", (req, res) => {
   res.status(200).json({
-    message: "Bienvenido al servidor de Insurance API 🚀",
+    message: "🚀 Bienvenido al servidor de Insurance API",
     status: "Running",
     timestamp: new Date().toISOString(),
   });
