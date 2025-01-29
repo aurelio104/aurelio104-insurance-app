@@ -50,7 +50,8 @@ const allowedOrigins = [
   "https://insurance-app-sandy.vercel.app",
   "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app",
   "https://insurance-3gzup83o0-aurelio104s-projects.vercel.app",
-  "https://insurance-frq4np317-aurelio104s-projects.vercel.app", // ✅ Agregada la nueva URL
+  "https://insurance-frq4np317-aurelio104s-projects.vercel.app",
+  "https://insurance-99hv2wop0-aurelio104s-projects.vercel.app", // ✅ Agregada la nueva URL
 ];
 
 app.use(cors({
