@@ -28,7 +28,7 @@ const requiredEnvVars = [
 
 const missingVars = requiredEnvVars.filter((env) => !process.env[env]);
 if (missingVars.length) {
-  console.error("Error: Faltan variables de entorno obligatorias:", missingVars);
+  console.error("❌ Error: Faltan variables de entorno obligatorias:", missingVars);
   process.exit(1);
 }
 
@@ -48,17 +48,18 @@ app.use(helmet({ contentSecurityPolicy: false }));
 
 // Configuración de CORS dinámica
 const allowedOrigins = [
-  process.env.CLIENT_URL,
+  process.env.CLIENT_URL, // 🔹 Dominio del frontend desde variables de entorno
   "http://localhost:3000",
   "http://localhost:5173",
-  "https://insurance-app-xi.vercel.app",
-  "https://insurance-app-xi.onrender.com",
-  "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app",
+  "https://insurance-app-sandy.vercel.app", // 🔹 Verifica que este es el correcto
+  "https://insurance-3gzup83o0-aurelio104s-projects.vercel.app", // 🔹 Verifica este también
+  "https://wealthy-kellie-aurelio104-48c9a52a.koyeb.app", // 🔹 URL del backend en Koyeb
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      console.log(`🌐 Solicitud desde: ${origin}`);
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -127,4 +128,3 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor ejecutándose en el puerto ${PORT}`);
   console.log(`🔧 Modo: ${process.env.NODE_ENV || "development"}`);
 });
-
