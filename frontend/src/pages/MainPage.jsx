@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "../services/axios";
+import { formatCurrency } from "../utils/formatters";
 import {
   CircularProgress,
   Alert,
@@ -11,18 +12,9 @@ import {
   Menu,
   MenuItem,
   Typography,
-  Button,
-  Card,
-  CardContent,
-  Grid,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
-import HealthIcon from "@mui/icons-material/LocalHospital";
-import CarIcon from "@mui/icons-material/DirectionsCar";
-import HomeIcon from "@mui/icons-material/Home";
-import ShieldIcon from "@mui/icons-material/Security";
-import CheckIcon from "@mui/icons-material/CheckCircle";
 import "../stylespages.css";
 
 const MainPage = () => {
@@ -34,12 +26,16 @@ const MainPage = () => {
   const [error, setError] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/login", { replace: true });
-    }
-  }, [token, navigate]);
+  // Abrir y cerrar el menú
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Fetch de datos del usuario y estadísticas
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -60,7 +56,7 @@ const MainPage = () => {
 
         if (err.response?.status === 401) {
           logout();
-          navigate("/login", { replace: true });
+          navigate("/login");
         }
       } finally {
         setLoading(false);
@@ -70,15 +66,10 @@ const MainPage = () => {
     if (token) {
       fetchData();
     }
+
+    // Scroll al inicio de la página al cargar
+    window.scrollTo(0, 0);
   }, [token, logout, navigate]);
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   if (loading) {
     return (
@@ -96,44 +87,32 @@ const MainPage = () => {
     );
   }
 
-  const promotions = [
-    {
-      title: "Seguro de Salud",
-      description: "20% de descuento en farmacias afiliadas con tu seguro de salud.",
-      image: "/salud.jpg", // ✅ QUITAR "/images/"
-    },
-    {
-      title: "Seguro de Auto",
-      description: "Revisión gratuita en talleres afiliados con tu seguro de auto.",
-      image: "/auto.jpg",
-    },
-    {
-      title: "Seguro de Hogar",
-      description: "Cobertura completa para desastres naturales sin costo adicional.",
-      image: "/hogar.jpg",
-    },
-    {
-      title: "Seguro de Vida",
-      description: "Plan de ahorro incluido con tu seguro de vida premium.",
-      image: "/vida.jpg",
-    },
-  ];
-    
-
   return (
     <div className="container">
-      <AppBar position="static" className="app-bar" style={{ backgroundColor: "#4a4a4a", color: "#ffffff" }}>
+      {/* Barra de navegación */}
+      <AppBar position="static" className="app-bar">
         <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleMenuOpen}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={handleMenuOpen}
+          >
             <MenuIcon />
           </IconButton>
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
             <MenuItem onClick={() => navigate("/main")}>Inicio</MenuItem>
             <MenuItem onClick={() => navigate("/policies")}>Pólizas</MenuItem>
             <MenuItem onClick={() => navigate("/payments")}>Pagos</MenuItem>
             <MenuItem onClick={() => navigate("/stats")}>Estadísticas</MenuItem>
             <MenuItem onClick={() => navigate("/simulator")}>Simulador</MenuItem>
-            <MenuItem onClick={() => navigate("/report-claim")}>Reporte de Siniestro</MenuItem>
+            <MenuItem onClick={() => navigate("/report-claim")}>
+              Reporte de Siniestro
+            </MenuItem>
           </Menu>
           <Typography variant="h6" className="app-bar-title">
             Bienvenido, {userData?.name || "Usuario"}
@@ -144,73 +123,41 @@ const MainPage = () => {
         </Toolbar>
       </AppBar>
 
-      <div className="insurance-container">
-        <Typography variant="h4" className="insurance-title">Información del Usuario</Typography>
+      {/* Contenido principal */}
+      <div className="grid">
+        {/* Información del Usuario */}
         <div className="card" onClick={() => navigate("/user")}>
+          <h2 className="title">Información del Usuario</h2>
           <p><strong>Nombre:</strong> {userData?.name}</p>
           <p><strong>Correo:</strong> {userData?.email}</p>
+          <p>
+            <strong>Estado de la Cuenta:</strong> {userData?.isActive ? "Activa" : "Inactiva"}
+          </p>
+          <p>
+            <strong>Fecha de Creación:</strong>{" "}
+            {new Date(userData?.createdAt).toLocaleDateString() || "N/A"}
+          </p>
         </div>
-      </div>
 
-      <div className="insurance-container">
-        <Typography variant="h4" className="insurance-title">Elige tu Seguro</Typography>
-        <Grid container spacing={2} className="insurance-options">
-          <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorSalud")} sx={{ "&:hover": { boxShadow: 3 } }}>
-              <CardContent>
-                <HealthIcon />
-                <Typography>Salud</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorAuto")} sx={{ "&:hover": { boxShadow: 3 } }}>
-              <CardContent>
-                <CarIcon />
-                <Typography>Autos</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorHogar")} sx={{ "&:hover": { boxShadow: 3 } }}>
-              <CardContent>
-                <HomeIcon />
-                <Typography>Hogar</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item>
-            <Card className="selected" onClick={() => navigate("/SimulatorVida")} sx={{ "&:hover": { boxShadow: 3 } }}>
-              <CardContent>
-                <ShieldIcon />
-                <Typography>Vida</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-        <Typography variant="body1" className="insurance-info">
-          <CheckIcon /> Mi Médico Personal <CheckIcon /> Atención en Casa
-        </Typography>
-        <Typography variant="h5" className="insurance-price">Desde <strong>$20</strong>.79 USD al mes</Typography>
-        <Button className="quote-button" onClick={() => navigate("/simulator")}>COTIZA AQUÍ</Button>
-      </div>
+        {/* Estadísticas */}
+        <div className="card" onClick={() => navigate("/stats")}>
+          <h2 className="title">Estadísticas</h2>
+          <p><strong>Total de Pólizas:</strong> {stats?.totalPolicies || 0}</p>
+          <p><strong>Total Pagado:</strong> {formatCurrency(stats?.totalSpent) || "$0.00"}</p>
+          <p><strong>Total Adeudado:</strong> {formatCurrency(stats?.totalRemainingBalance) || "$0.00"}</p>
+        </div>
 
-      <div className="insurance-container">
-        <Typography variant="h4" className="insurance-title">Promociones Especiales</Typography>
-        <Grid container spacing={2} className="insurance-options">
-          {promotions.map((promo, index) => (
-            <Grid item key={index}>
-              <Card className="selected" sx={{ "&:hover": { boxShadow: 3 } }}>
-                <CardContent>
-                  <img src={promo.image} alt={promo.title} className="promo-image" />
-                  <Typography variant="h6" className="promo-title">{promo.title}</Typography>
-                  <Typography className="promo-description">{promo.description}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-        <Button className="quote-button" onClick={() => navigate("/simulator")}>VER PROMOCIONES</Button>
+        {/* Simulador */}
+        <div className="card" onClick={() => navigate("/simulator")}>
+          <h2 className="title">Simulador</h2>
+          <p>Simula diferentes pólizas y opciones de cobertura.</p>
+        </div>
+
+        {/* Reporte de Siniestro */}
+        <div className="card" onClick={() => navigate("/report-claim")}>
+          <h2 className="title">Reporte de Siniestro</h2>
+          <p>Reporta un siniestro de manera rápida y sencilla.</p>
+        </div>
       </div>
     </div>
   );
