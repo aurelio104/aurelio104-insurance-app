@@ -94,14 +94,14 @@ paymentSchema.post("save", async function (doc, next) {
       // 📌 Determinar el nuevo estado de la póliza
       const newStatus = newRemainingBalance === 0 ? "completed" : policy.status;
 
-      // 🔄 Actualizar la póliza de forma explícita en la base de datos
+      // 🔄 Actualizar la póliza en MongoDB directamente
       const updatedPolicy = await Policy.findByIdAndUpdate(
         policy._id,
         {
           remainingBalance: newRemainingBalance,
           status: newStatus,
         },
-        { new: true } // Esta opción asegura que obtenemos la versión actualizada del documento
+        { new: true, runValidators: true } // 🔥 Esta opción garantiza que obtendremos la versión actualizada
       );
 
       console.log("✅ Póliza actualizada correctamente:", updatedPolicy);
@@ -113,6 +113,7 @@ paymentSchema.post("save", async function (doc, next) {
     next(error);
   }
 });
+
 
 
 module.exports = mongoose.model("Payment", paymentSchema);
