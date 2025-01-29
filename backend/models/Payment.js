@@ -58,20 +58,21 @@ paymentSchema.post("save", async function (doc, next) {
     if (doc.status === "completed") {
       const Policy = mongoose.model("Policy");
 
-      // Buscar la póliza asociada
+      console.log("🔍 Buscando póliza con ID:", doc.policy);
       const policy = await Policy.findById(doc.policy);
+
       if (!policy) {
-        console.error("⚠️ Póliza no encontrada:", doc.policy);
+        console.error("❌ Error: Póliza no encontrada");
         return next(new Error("Policy not found"));
       }
 
-      console.log("🔎 Póliza encontrada:", policy._id, " | Premium:", policy.premium, " | Saldo antes:", policy.remainingBalance);
+      console.log("✅ Póliza encontrada:", policy._id);
 
-      // Calcular el total pagado asegurando la conversión correcta del ObjectId
+      // 🔄 Calcular el total pagado correctamente
       const totalPaid = await mongoose.model("Payment").aggregate([
         {
           $match: {
-            policy: policy._id, // Ya es un ObjectId
+            policy: doc.policy, // Sin necesidad de convertir a ObjectId
             status: "completed",
           },
         },
@@ -83,28 +84,22 @@ paymentSchema.post("save", async function (doc, next) {
         },
       ]);
 
-      // Validar el total pagado
       const paidAmount = totalPaid[0]?.total || 0;
-      console.log("💰 Total pagado:", paidAmount);
+      console.log("💰 Total pagado hasta ahora:", paidAmount);
 
-      // Calcular el saldo restante
-      const newRemainingBalance = Math.max(policy.premium - paidAmount, 0);
-      console.log("📉 Nuevo saldo restante:", newRemainingBalance);
+      // 🏦 Actualizar saldo restante
+      policy.remainingBalance = Math.max(policy.premium - paidAmount, 0);
+      console.log("💳 Nuevo saldo restante:", policy.remainingBalance);
 
-      // Si el saldo ha cambiado, actualizarlo
-      if (policy.remainingBalance !== newRemainingBalance) {
-        policy.remainingBalance = newRemainingBalance;
-
-        // Si la póliza se pagó completamente, cambiar el estado a "completed"
-        if (policy.remainingBalance === 0) {
-          policy.status = "completed";
-        }
-
-        console.log("✅ Guardando póliza con nuevo saldo...");
-        await policy.save(); // Guardar cambios en la base de datos
-      } else {
-        console.log("⚠️ No se detectaron cambios en el saldo.");
+      // 📌 Cambiar estado si se pagó completamente
+      if (policy.remainingBalance === 0) {
+        policy.status = "completed";
+        console.log("🎉 Póliza marcada como COMPLETADA");
       }
+
+      // 🔄 Guardar cambios en la póliza
+      const updatedPolicy = await policy.save();
+      console.log("✅ Póliza actualizada correctamente:", updatedPolicy);
     }
 
     next(); // Continuar con la ejecución normal
@@ -113,6 +108,5 @@ paymentSchema.post("save", async function (doc, next) {
     next(error);
   }
 });
-
 
 module.exports = mongoose.model("Payment", paymentSchema);
