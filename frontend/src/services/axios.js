@@ -1,9 +1,9 @@
 import axios from "axios";
 
-// Usar la variable de entorno correcta para Vite
-const BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+// Usar la variable de entorno correcta y asegurar que siempre tenga valor
+const BASE_URL = process.env.VITE_API_URL || 'http://localhost:5000';
 
-console.log("API URL en frontend:", BASE_URL);
+console.log("🚀 API URL en frontend:", BASE_URL);
 
 // Crear una instancia de Axios con configuración predeterminada
 const api = axios.create({
