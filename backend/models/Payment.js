@@ -65,11 +65,13 @@ paymentSchema.post("save", async function (doc, next) {
         return next(new Error("Policy not found"));
       }
 
-      // 🔧 Calcular el total pagado asegurando la conversión correcta del ObjectId
+      console.log("🔎 Póliza encontrada:", policy._id, " | Premium:", policy.premium, " | Saldo antes:", policy.remainingBalance);
+
+      // Calcular el total pagado asegurando la conversión correcta del ObjectId
       const totalPaid = await mongoose.model("Payment").aggregate([
         {
           $match: {
-            policy: doc.policy, // Esto ya es un ObjectId
+            policy: policy._id, // Ya es un ObjectId
             status: "completed",
           },
         },
@@ -81,27 +83,34 @@ paymentSchema.post("save", async function (doc, next) {
         },
       ]);
 
-      // Asignar el saldo restante
-      const paidAmount = totalPaid[0]?.total || 0; // Si no hay pagos, asumimos 0
-      console.log("🔢 Total pagado:", paidAmount);
+      // Validar el total pagado
+      const paidAmount = totalPaid[0]?.total || 0;
+      console.log("💰 Total pagado:", paidAmount);
 
-      // Calcular el saldo restante y actualizar la póliza
-      policy.remainingBalance = Math.max(policy.premium - paidAmount, 0);
-      console.log("💳 Nuevo saldo restante:", policy.remainingBalance);
+      // Calcular el saldo restante
+      const newRemainingBalance = Math.max(policy.premium - paidAmount, 0);
+      console.log("📉 Nuevo saldo restante:", newRemainingBalance);
 
-      // Cambiar el estado de la póliza si el saldo llega a 0
-      if (policy.remainingBalance === 0) {
-        policy.status = "completed";
+      // Si el saldo ha cambiado, actualizarlo
+      if (policy.remainingBalance !== newRemainingBalance) {
+        policy.remainingBalance = newRemainingBalance;
+
+        // Si la póliza se pagó completamente, cambiar el estado a "completed"
+        if (policy.remainingBalance === 0) {
+          policy.status = "completed";
+        }
+
+        console.log("✅ Guardando póliza con nuevo saldo...");
+        await policy.save(); // Guardar cambios en la base de datos
+      } else {
+        console.log("⚠️ No se detectaron cambios en el saldo.");
       }
-
-      // Guardar la póliza actualizada
-      await policy.save();
     }
 
     next(); // Continuar con la ejecución normal
   } catch (error) {
     console.error("⚠️ [Payment Middleware Error]:", error.message);
-    next(error); // Pasar el error a la pila de middlewares
+    next(error);
   }
 });
 
