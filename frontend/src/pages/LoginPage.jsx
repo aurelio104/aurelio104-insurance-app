@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/axios";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import "../styles.css";
+import "../stylespages.css";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

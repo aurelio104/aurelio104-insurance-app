@@ -15,6 +15,7 @@ import SimulatorSalud from "./pages/SimulatorSalud";
 import SimulatorAuto from "./pages/SimulatorAuto";
 import SimulatorHogar from "./pages/SimulatorHogar";
 import SimulatorVida from "./pages/SimulatorVida";
+import "./stylespages.css"; // ✅ Importando correctamente los estilos globales
 
 // Componente para rutas protegidas
 const ProtectedRoute = ({ isAuthenticated, children }) => {
