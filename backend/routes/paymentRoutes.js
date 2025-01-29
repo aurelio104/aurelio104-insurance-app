@@ -92,8 +92,6 @@ router.post(
   }
 );
 
-
-
 // **Actualizar el estado de un pago**
 router.put(
   "/:id",
