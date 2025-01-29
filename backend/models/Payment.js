@@ -57,30 +57,39 @@ paymentSchema.post("save", async function (doc, next) {
   try {
     if (doc.status === "completed") {
       const Policy = mongoose.model("Policy");
+
+      // 🔹 Buscar la póliza relacionada
       const policy = await Policy.findById(doc.policy);
-
-      if (policy) {
-        const totalPaid = await mongoose.model("Payment").aggregate([
-          { $match: { policy: policy._id, status: "completed" } },
-          { $group: { _id: null, total: { $sum: "$amount" } } },
-        ]);
-
-        const paidAmount = totalPaid[0]?.total || 0;
-        policy.remainingBalance = Math.max(policy.premium - paidAmount, 0);
-        
-        // 🔹 Asegurar que se actualiza el estado a "completed" si el saldo llega a 0
-        if (policy.remainingBalance === 0) {
-          policy.status = "completed";
-        }
-
-        await policy.save(); // 🔹 Asegurar que los cambios se guardan en la BD
+      if (!policy) {
+        console.error("⚠️ Póliza no encontrada:", doc.policy);
+        return next(new Error("Policy not found"));
       }
+
+      // 🔹 Calcular el monto total pagado
+      const totalPaid = await mongoose.model("Payment").aggregate([
+        { $match: { policy: policy._id, status: "completed" } }, // Asegurar coincidencia con el ID
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]);
+
+      // 🔹 Actualizar saldo restante
+      const paidAmount = totalPaid[0]?.total || 0;
+      const newRemainingBalance = Math.max(policy.premium - paidAmount, 0);
+
+      policy.remainingBalance = newRemainingBalance;
+
+      // 🔹 Cambiar el estado si el saldo llega a 0
+      if (newRemainingBalance === 0) {
+        policy.status = "completed";
+      }
+
+      await policy.save(); // Guardar cambios en la póliza
     }
-    next();
+    next(); // Continuar ejecución
   } catch (error) {
     console.error("⚠️ [Payment Middleware Error]:", error.message);
-    next(error);
+    next(error); // Pasar el error a la pila
   }
 });
+
 
 module.exports = mongoose.model("Payment", paymentSchema);
