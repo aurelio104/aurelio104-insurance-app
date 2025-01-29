@@ -1,6 +1,7 @@
 import React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom';
+import "../stylespages.css";
 
 const ForgotPasswordPage = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
