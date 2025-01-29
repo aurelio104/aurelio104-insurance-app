@@ -2,8 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// Definir la API base utilizando la variable de entorno correcta para Vite
-const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://localhost:5000';
+// Usar VITE_API_URL correctamente y manejar undefined
+const API_URL = process.env.VITE_API_URL || 'http://localhost:5000';
+
+console.log("🚀 VITE_API_URL en build:", API_URL);
 
 export default defineConfig({
   plugins: [react()],
