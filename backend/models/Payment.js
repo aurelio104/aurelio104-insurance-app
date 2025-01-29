@@ -65,11 +65,11 @@ paymentSchema.post("save", async function (doc, next) {
         return next(new Error("Policy not found"));
       }
 
-      // Calcular el total pagado
+      // 🔧 Calcular el total pagado asegurando la conversión correcta del ObjectId
       const totalPaid = await mongoose.model("Payment").aggregate([
         {
           $match: {
-            policy: new mongoose.Types.ObjectId(policy._id), // Uso correcto del constructor
+            policy: doc.policy, // Esto ya es un ObjectId
             status: "completed",
           },
         },
@@ -82,25 +82,28 @@ paymentSchema.post("save", async function (doc, next) {
       ]);
 
       // Asignar el saldo restante
-      const paidAmount = totalPaid[0]?.total || 0;
-      policy.remainingBalance = Math.max(policy.premium - paidAmount, 0);
+      const paidAmount = totalPaid[0]?.total || 0; // Si no hay pagos, asumimos 0
+      console.log("🔢 Total pagado:", paidAmount);
 
-      // Actualizar estado de la póliza
+      // Calcular el saldo restante y actualizar la póliza
+      policy.remainingBalance = Math.max(policy.premium - paidAmount, 0);
+      console.log("💳 Nuevo saldo restante:", policy.remainingBalance);
+
+      // Cambiar el estado de la póliza si el saldo llega a 0
       if (policy.remainingBalance === 0) {
         policy.status = "completed";
       }
 
-      // Guardar los cambios en la póliza
+      // Guardar la póliza actualizada
       await policy.save();
     }
 
-    next(); // Continuar con el flujo
+    next(); // Continuar con la ejecución normal
   } catch (error) {
     console.error("⚠️ [Payment Middleware Error]:", error.message);
-    next(error);
+    next(error); // Pasar el error a la pila de middlewares
   }
 });
-
 
 
 module.exports = mongoose.model("Payment", paymentSchema);
